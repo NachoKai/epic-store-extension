@@ -61,9 +61,15 @@
     el.className = "sie-panel";
     el.innerHTML = `
       <div class="sie-header">
-        <span class="sie-logo">STEAM</span>
+        <span class="sie-brand">
+          <svg class="sie-steam-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path fill="currentColor" d="M11.98 2C6.66 2 2.3 6.13 2.02 11.38l5.36 2.22a2.81 2.81 0 0 1 1.6-.5l.12.01 2.38-3.46v-.05a3.76 3.76 0 1 1 3.76 3.76h-.09l-3.4 2.43.01.1a2.83 2.83 0 0 1-5.62.4l-3.83-1.59A10 10 0 1 0 11.98 2zM9.3 17.18l-1.23-.51a2.12 2.12 0 0 0 3.92-1.6 2.12 2.12 0 0 0-2.77-1.13l1.27.53a1.56 1.56 0 1 1-1.19 2.88zm6.97-7.06a2.5 2.5 0 1 0 0-5.01 2.5 2.5 0 0 0 0 5.01zm0-.78a1.72 1.72 0 1 1 0-3.44 1.72 1.72 0 0 1 0 3.44z"/>
+          </svg>
+          <span class="sie-logo">STEAM</span>
+        </span>
         <button class="sie-close" title="Hide" aria-label="Hide">&times;</button>
       </div>
+      <div class="sie-banner-wrap"></div>
       <div class="sie-body"></div>
     `;
     document.body.appendChild(el);
@@ -76,6 +82,35 @@
     el.querySelector(".sie-body").innerHTML = html;
   }
 
+  function setBanner(html) {
+    const el = ensurePanel();
+    el.querySelector(".sie-banner-wrap").innerHTML = html || "";
+  }
+
+  function metacriticClass(score) {
+    if (score >= 75) return "sie-mc-high";
+    if (score >= 50) return "sie-mc-mid";
+    return "sie-mc-low";
+  }
+
+  const PLATFORM_ICONS = {
+    windows:
+      '<svg viewBox="0 0 24 24" width="13" height="13" aria-label="Windows"><path fill="currentColor" d="M3 5.5 10.5 4.4v7.1H3V5.5zM3 12.5h7.5v7.1L3 18.5v-6zM11.5 4.2 21 3v8.5h-9.5V4.2zM11.5 12.5H21V21l-9.5-1.3v-7.2z"/></svg>',
+    mac:
+      '<svg viewBox="0 0 24 24" width="13" height="13" aria-label="macOS"><path fill="currentColor" d="M16.5 12.6c0-2 1.6-2.9 1.7-3-0.9-1.4-2.4-1.5-2.9-1.6-1.2-0.1-2.4 0.7-3 0.7-0.6 0-1.6-0.7-2.6-0.7-1.3 0-2.6 0.8-3.3 2-1.4 2.5-0.4 6.1 1 8.1 0.7 1 1.4 2.1 2.5 2 1-0.1 1.3-0.7 2.5-0.7s1.5 0.7 2.6 0.6c1.1 0 1.7-1 2.4-2 0.7-1.1 1-2.2 1-2.3-0.1 0-1.9-0.7-1.9-2.8zM14.6 6.6c0.5-0.7 0.9-1.6 0.8-2.6-0.8 0-1.7 0.5-2.3 1.2-0.5 0.6-0.9 1.5-0.8 2.5 0.9 0 1.8-0.5 2.3-1.1z"/></svg>',
+    linux:
+      '<svg viewBox="0 0 24 24" width="13" height="13" aria-label="Linux"><path fill="currentColor" d="M12 2c-2 0-3 1.8-3 4 0 1.3 0.3 2 0.3 3 0 1.2-1.6 2.6-2.3 4.6-0.7 2-1.3 3.4-0.5 4.3 0.4 0.4 1 0.3 1.5 0.6 0.5 0.3 0.8 0.9 1.6 1.1 0.4 0.1 0.9 0.1 1.4 0.1s1 0 1.4-0.1c0.8-0.2 1.1-0.8 1.6-1.1 0.5-0.3 1.1-0.2 1.5-0.6 0.8-0.9 0.2-2.3-0.5-4.3-0.7-2-2.3-3.4-2.3-4.6 0-1 0.3-1.7 0.3-3 0-2.2-1-4-3-4zm-1.2 4.2c0.4 0 0.7 0.4 0.7 0.9s-0.3 0.9-0.7 0.9-0.7-0.4-0.7-0.9 0.3-0.9 0.7-0.9zm2.4 0c0.4 0 0.7 0.4 0.7 0.9s-0.3 0.9-0.7 0.9-0.7-0.4-0.7-0.9 0.3-0.9 0.7-0.9z"/></svg>',
+  };
+
+  function platformsHtml(p) {
+    if (!p) return "";
+    const icons = [];
+    if (p.windows) icons.push(`<span class="sie-plat">${PLATFORM_ICONS.windows}</span>`);
+    if (p.mac) icons.push(`<span class="sie-plat">${PLATFORM_ICONS.mac}</span>`);
+    if (p.linux) icons.push(`<span class="sie-plat">${PLATFORM_ICONS.linux}</span>`);
+    return icons.length ? `<span class="sie-platforms">${icons.join("")}</span>` : "";
+  }
+
   function ratingClass(percent) {
     if (percent >= 80) return "sie-pos";
     if (percent >= 50) return "sie-mixed";
@@ -83,10 +118,12 @@
   }
 
   function renderLoading(title) {
+    setBanner("");
     setBody(`<div class="sie-loading">Looking up “${escapeHtml(title)}” on Steam…</div>`);
   }
 
   function renderNotFound(title) {
+    setBanner("");
     setBody(
       `<div class="sie-notfound">No Steam match found for<br><strong>${escapeHtml(
         title
@@ -95,10 +132,22 @@
   }
 
   function renderError(msg) {
+    setBanner("");
     setBody(`<div class="sie-notfound">Couldn't load Steam data.<br><small>${escapeHtml(msg)}</small></div>`);
   }
 
   function renderData(d) {
+    // Banner image (Steam header capsule).
+    if (d.headerImage) {
+      setBanner(
+        `<a href="${d.storeUrl}" target="_blank" rel="noopener" class="sie-banner-link">
+           <img class="sie-banner" src="${d.headerImage}" alt="${escapeHtml(d.name)} on Steam" />
+         </a>`
+      );
+    } else {
+      setBanner("");
+    }
+
     const review = d.review
       ? `
         <div class="sie-row">
@@ -109,6 +158,13 @@
             <div class="sie-rating-desc">${escapeHtml(d.review.desc)}</div>
             <div class="sie-rating-count">${d.review.total.toLocaleString()} reviews</div>
           </div>
+          ${
+            d.metacritic
+              ? `<a class="sie-metacritic ${metacriticClass(d.metacritic.score)}" href="${
+                  d.metacritic.url || d.storeUrl
+                }" target="_blank" rel="noopener" title="Metacritic score">${d.metacritic.score}</a>`
+              : ""
+          }
         </div>`
       : `<div class="sie-row sie-muted">No Steam reviews yet</div>`;
 
@@ -130,14 +186,25 @@
       }
     }
 
+    const genresHtml =
+      d.genres && d.genres.length
+        ? `<div class="sie-genres">${d.genres
+            .map((g) => `<span class="sie-chip">${escapeHtml(g)}</span>`)
+            .join("")}</div>`
+        : "";
+
     const matchNote =
-      `<div class="sie-match">Matched: <strong>${escapeHtml(d.name)}</strong>` +
+      `<div class="sie-match">` +
+      `<span>Matched: <strong>${escapeHtml(d.name)}</strong>` +
       (d.releaseDate ? ` · ${escapeHtml(d.releaseDate)}` : "") +
+      `</span>` +
+      platformsHtml(d.platforms) +
       `</div>`;
 
     setBody(`
       ${review}
       ${priceHtml}
+      ${genresHtml}
       ${matchNote}
       <a class="sie-link" href="${d.storeUrl}" target="_blank" rel="noopener">View on Steam →</a>
     `);

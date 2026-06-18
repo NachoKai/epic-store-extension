@@ -103,12 +103,35 @@ async function buildInfo(title) {
     };
   }
 
+  let metacritic = null;
+  if (details && details.metacritic && typeof details.metacritic.score === "number") {
+    metacritic = { score: details.metacritic.score, url: details.metacritic.url || null };
+  }
+
+  const genres =
+    details && Array.isArray(details.genres)
+      ? details.genres.map((g) => g.description).filter(Boolean).slice(0, 4)
+      : [];
+
+  let platforms = null;
+  if (details && details.platforms) {
+    platforms = {
+      windows: !!details.platforms.windows,
+      mac: !!details.platforms.mac,
+      linux: !!details.platforms.linux,
+    };
+  }
+
   return {
     found: true,
     appId: match.id,
     name: (details && details.name) || match.name,
     headerImage: details && details.header_image,
     releaseDate: details && details.release_date && details.release_date.date,
+    shortDescription: details && details.short_description,
+    metacritic,
+    genres,
+    platforms,
     storeUrl: `https://store.steampowered.com/app/${match.id}/`,
     price,
     review: reviewInfo,

@@ -26,11 +26,34 @@
   border-bottom: 1px solid #2a475e;
 }
 
+#steam-info-epic-panel .sie-brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #66c0f4;
+}
+#steam-info-epic-panel .sie-steam-icon {
+  display: block;
+  color: #66c0f4;
+}
 #steam-info-epic-panel .sie-logo {
   font-weight: 700;
   letter-spacing: 1px;
   font-size: 12px;
   color: #66c0f4;
+}
+
+#steam-info-epic-panel .sie-banner-wrap:empty {
+  display: none;
+}
+#steam-info-epic-panel .sie-banner-link {
+  display: block;
+  line-height: 0;
+}
+#steam-info-epic-panel .sie-banner {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 #steam-info-epic-panel .sie-close {
@@ -70,10 +93,54 @@
 #steam-info-epic-panel .sie-mixed { background: #b9a05a; color: #1b1405; }
 #steam-info-epic-panel .sie-neg { background: #a34c4c; }
 
+#steam-info-epic-panel .sie-rating-meta {
+  flex: 1;
+  min-width: 0;
+}
 #steam-info-epic-panel .sie-rating-desc {
   font-weight: 600;
   color: #fff;
 }
+
+#steam-info-epic-panel .sie-metacritic {
+  margin-left: auto;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  flex: none;
+}
+#steam-info-epic-panel .sie-mc-high { background: #66cc33; color: #16210b; }
+#steam-info-epic-panel .sie-mc-mid { background: #ffcc33; color: #211b05; }
+#steam-info-epic-panel .sie-mc-low { background: #ff6633; }
+
+#steam-info-epic-panel .sie-genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+#steam-info-epic-panel .sie-chip {
+  background: #2a475e;
+  color: #c7d5e0;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+#steam-info-epic-panel .sie-platforms {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8f98a0;
+}
+#steam-info-epic-panel .sie-plat { display: inline-flex; }
 #steam-info-epic-panel .sie-rating-count {
   color: #8f98a0;
   font-size: 12px;
@@ -105,6 +172,10 @@
 }
 
 #steam-info-epic-panel .sie-match {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   color: #8f98a0;
   font-size: 11px;
   border-top: 1px solid #2a475e;
