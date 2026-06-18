@@ -69,6 +69,10 @@ the game shown on the current Epic Games Store product page.
 ### Privacy policy URL
 Host the included privacy-policy.html somewhere public (e.g. GitHub Pages,
 Vercel, or any static host) and paste its URL here.
+See RELEASE_CHECKLIST.md for step-by-step GitHub Pages hosting instructions.
+
+### Support / developer contact email
+ignacio.caiafa@gmail.com
 
 ---
 
