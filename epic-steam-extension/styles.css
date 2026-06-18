@@ -120,6 +120,80 @@
 #steam-info-epic-panel .sie-mc-mid { background: #ffcc33; color: #211b05; }
 #steam-info-epic-panel .sie-mc-low { background: #ff6633; }
 
+/* Review split (recent vs all-time) */
+#steam-info-epic-panel .sie-reviews {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+#steam-info-epic-panel .sie-reviews-lines {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+#steam-info-epic-panel .sie-review-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#steam-info-epic-panel .sie-review-label {
+  width: 52px;
+  flex: none;
+  color: #8f98a0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+#steam-info-epic-panel .sie-rating-pill {
+  font-weight: 700;
+  font-size: 13px;
+  padding: 1px 7px;
+  border-radius: 5px;
+  min-width: 40px;
+  text-align: center;
+  flex: none;
+}
+#steam-info-epic-panel .sie-review-detail {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+#steam-info-epic-panel .sie-desc {
+  margin: 0 0 10px;
+  color: #acb2b8;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Region selector */
+#steam-info-epic-panel .sie-region {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+#steam-info-epic-panel .sie-region-label {
+  color: #8f98a0;
+  font-size: 11px;
+}
+#steam-info-epic-panel .sie-region-select {
+  flex: 1;
+  max-width: 160px;
+  background: #316282;
+  color: #fff;
+  border: 1px solid #2a475e;
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
 #steam-info-epic-panel .sie-genres {
   display: flex;
   flex-wrap: wrap;

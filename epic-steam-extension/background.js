@@ -24,10 +24,10 @@ async function fetchJSON(url) {
 }
 
 // Find the best matching Steam app id for a given game title.
-async function findAppId(title) {
+async function findAppId(title, cc) {
   const term = encodeURIComponent(title);
   const data = await fetchJSON(
-    `https://store.steampowered.com/api/storesearch/?term=${term}&cc=us&l=english`
+    `https://store.steampowered.com/api/storesearch/?term=${term}&cc=${cc}&l=english`
   );
 
   const items = (data && data.items) || [];
@@ -50,30 +50,55 @@ async function findAppId(title) {
   return { id: match.id, name: match.name };
 }
 
-async function getAppDetails(appId) {
+async function getAppDetails(appId, cc) {
   const data = await fetchJSON(
-    `https://store.steampowered.com/api/appdetails?appids=${appId}&cc=us&l=english`
+    `https://store.steampowered.com/api/appdetails?appids=${appId}&cc=${cc}&l=english`
   );
   const entry = data && data[appId];
   if (!entry || !entry.success) return null;
   return entry.data;
 }
 
+function summarize(qs) {
+  if (!qs || !qs.total_reviews) return null;
+  const total = qs.total_reviews;
+  const positive = qs.total_positive || 0;
+  return {
+    desc: qs.review_score_desc,
+    total,
+    positive,
+    percentPositive: Math.round((positive / total) * 100),
+  };
+}
+
+// All-time review summary.
 async function getReviewSummary(appId) {
   const data = await fetchJSON(
-    `https://store.steampowered.com/appreviews/${appId}?json=1&language=all&purchase_type=all&num_per_page=0`
+    `https://store.steampowered.com/appreviews/${appId}?json=1&language=all&purchase_type=all&num_per_page=0&filter=all`
   );
   if (!data || data.success !== 1) return null;
   return data.query_summary || null;
 }
 
-async function buildInfo(title) {
-  const match = await findAppId(title);
+// Recent (last 30 days) review summary, mirroring Steam's "Recent Reviews".
+async function getRecentReviewSummary(appId) {
+  const now = Math.floor(Date.now() / 1000);
+  const ago = now - 60 * 60 * 24 * 30;
+  const data = await fetchJSON(
+    `https://store.steampowered.com/appreviews/${appId}?json=1&language=all&purchase_type=all&num_per_page=0&filter=all&date_range_type=include&start_date=${ago}&end_date=${now}`
+  );
+  if (!data || data.success !== 1) return null;
+  return data.query_summary || null;
+}
+
+async function buildInfo(title, cc) {
+  const match = await findAppId(title, cc);
   if (!match) return { found: false };
 
-  const [details, reviews] = await Promise.all([
-    getAppDetails(match.id).catch(() => null),
+  const [details, reviews, recentReviews] = await Promise.all([
+    getAppDetails(match.id, cc).catch(() => null),
     getReviewSummary(match.id).catch(() => null),
+    getRecentReviewSummary(match.id).catch(() => null),
   ]);
 
   let price = null;
@@ -91,17 +116,8 @@ async function buildInfo(title) {
     }
   }
 
-  let reviewInfo = null;
-  if (reviews && reviews.total_reviews > 0) {
-    const total = reviews.total_reviews;
-    const positive = reviews.total_positive || 0;
-    reviewInfo = {
-      desc: reviews.review_score_desc,
-      total,
-      positive,
-      percentPositive: Math.round((positive / total) * 100),
-    };
-  }
+  const reviewInfo = summarize(reviews);
+  const recentInfo = summarize(recentReviews);
 
   let metacritic = null;
   if (details && details.metacritic && typeof details.metacritic.score === "number") {
@@ -135,6 +151,7 @@ async function buildInfo(title) {
     storeUrl: `https://store.steampowered.com/app/${match.id}/`,
     price,
     review: reviewInfo,
+    recentReview: recentInfo,
   };
 }
 
@@ -156,7 +173,8 @@ async function setCached(key, value) {
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg && msg.type === "GET_STEAM_INFO") {
     const title = (msg.title || "").trim();
-    const cacheKey = "steam:" + normalize(title);
+    const cc = (msg.cc || "us").toLowerCase();
+    const cacheKey = "steam:" + cc + ":" + normalize(title);
 
     (async () => {
       try {
@@ -165,7 +183,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         const cached = await getCached(cacheKey);
         if (cached) return sendResponse({ ok: true, data: cached, cached: true });
 
-        const data = await buildInfo(title);
+        const data = await buildInfo(title, cc);
         await setCached(cacheKey, data);
         sendResponse({ ok: true, data });
       } catch (err) {

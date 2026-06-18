@@ -5,6 +5,47 @@
 (function () {
   const PANEL_ID = "steam-info-epic-panel";
   let currentTitle = null;
+  let currentData = null;
+
+  // Steam regions for pricing. Steam applies regional prices per country,
+  // so the price you see depends on your account's region, not your browser.
+  const REGIONS = [
+    { cc: "us", label: "United States (USD)" },
+    { cc: "ar", label: "Argentina (USD reg.)" },
+    { cc: "br", label: "Brazil (BRL)" },
+    { cc: "mx", label: "Mexico (MXN)" },
+    { cc: "cl", label: "Chile (CLP)" },
+    { cc: "co", label: "Colombia (COP)" },
+    { cc: "ca", label: "Canada (CAD)" },
+    { cc: "gb", label: "United Kingdom (GBP)" },
+    { cc: "de", label: "Eurozone (EUR)" },
+    { cc: "tr", label: "Türkiye (USD reg.)" },
+    { cc: "in", label: "India (INR)" },
+    { cc: "au", label: "Australia (AUD)" },
+    { cc: "jp", label: "Japan (JPY)" },
+  ];
+  const DEFAULT_CC = "us";
+  let region = DEFAULT_CC;
+
+  function loadRegion() {
+    return new Promise((resolve) => {
+      try {
+        chrome.storage.local.get("sie_region", (res) => {
+          if (res && res.sie_region) region = res.sie_region;
+          resolve(region);
+        });
+      } catch {
+        resolve(region);
+      }
+    });
+  }
+
+  function saveRegion(cc) {
+    region = cc;
+    try {
+      chrome.storage.local.set({ sie_region: cc });
+    } catch {}
+  }
 
   // --- title detection -----------------------------------------------------
 
@@ -117,6 +158,34 @@
     return "sie-neg";
   }
 
+  // A single review summary line (label + % + desc + count).
+  function reviewLine(label, r) {
+    if (!r) {
+      return `<div class="sie-review-line sie-muted"><span class="sie-review-label">${label}</span><span>No data</span></div>`;
+    }
+    return `
+      <div class="sie-review-line">
+        <span class="sie-review-label">${label}</span>
+        <span class="sie-rating-pill ${ratingClass(r.percentPositive)}">${r.percentPositive}%</span>
+        <span class="sie-review-detail">
+          <span class="sie-rating-desc">${escapeHtml(r.desc)}</span>
+          <span class="sie-rating-count">${r.total.toLocaleString()} reviews</span>
+        </span>
+      </div>`;
+  }
+
+  function regionSelectorHtml() {
+    const opts = REGIONS.map(
+      (r) =>
+        `<option value="${r.cc}"${r.cc === region ? " selected" : ""}>${escapeHtml(r.label)}</option>`
+    ).join("");
+    return `
+      <div class="sie-region">
+        <label class="sie-region-label" for="sie-region-select">Price region</label>
+        <select id="sie-region-select" class="sie-region-select">${opts}</select>
+      </div>`;
+  }
+
   function renderLoading(title) {
     setBanner("");
     setBody(`<div class="sie-loading">Looking up “${escapeHtml(title)}” on Steam…</div>`);
@@ -148,25 +217,26 @@
       setBanner("");
     }
 
+    const metacriticHtml = d.metacritic
+      ? `<a class="sie-metacritic ${metacriticClass(d.metacritic.score)}" href="${
+          d.metacritic.url || d.storeUrl
+        }" target="_blank" rel="noopener" title="Metacritic score">${d.metacritic.score}</a>`
+      : "";
+
     const review = d.review
       ? `
-        <div class="sie-row">
-          <div class="sie-rating ${ratingClass(d.review.percentPositive)}">
-            ${d.review.percentPositive}%
+        <div class="sie-reviews">
+          <div class="sie-reviews-lines">
+            ${reviewLine("Recent", d.recentReview)}
+            ${reviewLine("All-time", d.review)}
           </div>
-          <div class="sie-rating-meta">
-            <div class="sie-rating-desc">${escapeHtml(d.review.desc)}</div>
-            <div class="sie-rating-count">${d.review.total.toLocaleString()} reviews</div>
-          </div>
-          ${
-            d.metacritic
-              ? `<a class="sie-metacritic ${metacriticClass(d.metacritic.score)}" href="${
-                  d.metacritic.url || d.storeUrl
-                }" target="_blank" rel="noopener" title="Metacritic score">${d.metacritic.score}</a>`
-              : ""
-          }
+          ${metacriticHtml}
         </div>`
-      : `<div class="sie-row sie-muted">No Steam reviews yet</div>`;
+      : `<div class="sie-row sie-muted">No Steam reviews yet ${metacriticHtml}</div>`;
+
+    const descHtml = d.shortDescription
+      ? `<p class="sie-desc">${escapeHtml(d.shortDescription)}</p>`
+      : "";
 
     let priceHtml = "";
     if (d.price) {
@@ -203,11 +273,22 @@
 
     setBody(`
       ${review}
+      ${descHtml}
       ${priceHtml}
+      ${regionSelectorHtml()}
       ${genresHtml}
       ${matchNote}
       <a class="sie-link" href="${d.storeUrl}" target="_blank" rel="noopener">View on Steam →</a>
     `);
+
+    const sel = document.getElementById("sie-region-select");
+    if (sel) {
+      sel.addEventListener("change", (e) => {
+        saveRegion(e.target.value);
+        // Re-fetch with the new region for the current title.
+        if (currentTitle) requestInfo(currentTitle);
+      });
+    }
   }
 
   function escapeHtml(str) {
@@ -233,9 +314,14 @@
     if (title === currentTitle && document.getElementById(PANEL_ID)) return;
     currentTitle = title;
 
+    requestInfo(title);
+  }
+
+  // Fetch Steam info for a title using the currently selected region.
+  function requestInfo(title) {
     renderLoading(title);
 
-    chrome.runtime.sendMessage({ type: "GET_STEAM_INFO", title }, (resp) => {
+    chrome.runtime.sendMessage({ type: "GET_STEAM_INFO", title, cc: region }, (resp) => {
       if (chrome.runtime.lastError) {
         renderError(chrome.runtime.lastError.message);
         return;
@@ -248,6 +334,7 @@
         renderNotFound(title);
         return;
       }
+      currentData = resp.data;
       renderData(resp.data);
     });
   }
@@ -279,5 +366,6 @@
   }
   window.addEventListener("popstate", onMaybeNavigate);
 
-  run();
+  // Load the saved region first, then start.
+  loadRegion().then(run);
 })();
