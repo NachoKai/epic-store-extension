@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Steam Info for Epic Games Store",
+  "name": "Steam Info Overlay for Epic (Unofficial)",
   "version": "1.0.0",
-  "description": "Shows the matching Steam review score and price right on Epic Games Store product pages.",
+  "description": "Unofficial. Shows matching Steam reviews and price on Epic Games Store product pages. Not affiliated with Valve or Epic Games.",
   "permissions": ["storage"],
   "host_permissions": [
     "https://store.epicgames.com/*",
@@ -25,7 +25,7 @@
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "Steam Info for Epic Games Store",
+    "default_title": "Steam Info Overlay for Epic (Unofficial)",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
