@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Steam Info for Epic Games Store",
+  "version": "1.0.0",
+  "description": "Shows the matching Steam review score and price right on Epic Games Store product pages.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://store.epicgames.com/*",
+    "https://store.steampowered.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://store.epicgames.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon128.png",
+    "48": "icons/icon128.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Steam Info for Epic Games Store"
+  }
+}

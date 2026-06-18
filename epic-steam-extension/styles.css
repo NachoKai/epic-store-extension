@@ -1,0 +1,130 @@
+/* Floating Steam info panel injected onto Epic Games Store pages. */
+
+#steam-info-epic-panel.sie-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2147483647;
+  width: 280px;
+  background: #1b2838;
+  color: #c7d5e0;
+  border: 1px solid #2a475e;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow: hidden;
+}
+
+#steam-info-epic-panel .sie-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #171a21;
+  border-bottom: 1px solid #2a475e;
+}
+
+#steam-info-epic-panel .sie-logo {
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 12px;
+  color: #66c0f4;
+}
+
+#steam-info-epic-panel .sie-close {
+  background: transparent;
+  border: none;
+  color: #8f98a0;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+#steam-info-epic-panel .sie-close:hover {
+  color: #fff;
+}
+
+#steam-info-epic-panel .sie-body {
+  padding: 12px;
+}
+
+#steam-info-epic-panel .sie-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+#steam-info-epic-panel .sie-rating {
+  font-size: 20px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  min-width: 54px;
+  text-align: center;
+  color: #fff;
+}
+#steam-info-epic-panel .sie-pos { background: #66c0f4; color: #0b1b28; }
+#steam-info-epic-panel .sie-mixed { background: #b9a05a; color: #1b1405; }
+#steam-info-epic-panel .sie-neg { background: #a34c4c; }
+
+#steam-info-epic-panel .sie-rating-desc {
+  font-weight: 600;
+  color: #fff;
+}
+#steam-info-epic-panel .sie-rating-count {
+  color: #8f98a0;
+  font-size: 12px;
+}
+
+#steam-info-epic-panel .sie-price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+#steam-info-epic-panel .sie-price-final {
+  font-size: 16px;
+  font-weight: 700;
+  color: #beee11;
+}
+#steam-info-epic-panel .sie-price-initial {
+  text-decoration: line-through;
+  color: #738895;
+  font-size: 12px;
+}
+#steam-info-epic-panel .sie-discount {
+  background: #4c6b22;
+  color: #beee11;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+#steam-info-epic-panel .sie-match {
+  color: #8f98a0;
+  font-size: 11px;
+  border-top: 1px solid #2a475e;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+#steam-info-epic-panel .sie-match strong { color: #c7d5e0; }
+
+#steam-info-epic-panel .sie-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: #66c0f4;
+  text-decoration: none;
+  font-weight: 600;
+}
+#steam-info-epic-panel .sie-link:hover { text-decoration: underline; }
+
+#steam-info-epic-panel .sie-loading,
+#steam-info-epic-panel .sie-notfound {
+  color: #8f98a0;
+  padding: 4px 0;
+}
+#steam-info-epic-panel .sie-muted { color: #8f98a0; }
