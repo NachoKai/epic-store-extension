@@ -1,33 +1,71 @@
 # epic-store-extension
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+Unofficial Chrome extension that overlays matching **Steam review scores and
+pricing** on Epic Games Store product pages — so you can check how a game is
+actually rated on Steam without leaving Epic.
 
-## Built with v0
+![Manifest V3](https://img.shields.io/badge/manifest-v3-blue)
+![License](https://img.shields.io/badge/license-unspecified-lightgrey)
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+## What it does
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_q6Znyourq2675CeZOfMYDsHd4Uno)
+Open any game page on `store.epicgames.com/p/...` and a floating panel appears
+with:
 
-## Getting Started
+- Steam review scores — Recent (last 30 days) and All-time, % positive + total count
+- Metacritic score (when available)
+- Steam price, with a region selector (US, EU, UK, AR, BR, MX, and more)
+- Genres, supported platforms (Windows/Mac/Linux), store banner, short description
+- A direct link to the matched Steam store page (the matched title is always
+  shown so you can confirm it's the right game)
 
-First, run the development server:
+## Repo layout
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+```
+epic-steam-extension/   the actual Chrome extension (MV3) — start here
+app/, components/, lib/ Next.js scaffold bootstrapped via v0.app (currently a
+                         placeholder, not yet wired to the extension)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The extension is self-contained under `epic-steam-extension/` — see
+[`epic-steam-extension/README.md`](epic-steam-extension/README.md) for how it
+works internally, and
+[`epic-steam-extension/STORE_LISTING.md`](epic-steam-extension/STORE_LISTING.md)
+for the Chrome Web Store listing copy.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How it works
 
-## Learn More
+1. A **content script** (`content.js`) runs on Epic product pages, reads the
+   game title (falling back to the URL slug), and re-runs on Epic's SPA
+   navigation.
+2. A **background service worker** (`background.js`) queries Steam's public
+   endpoints — `storesearch` to find the matching app id, `appdetails` for
+   price/genres/platforms, `appreviews` for the review summary — from the
+   background to avoid CORS issues.
+3. Results are rendered in a floating panel and cached for 6 hours.
 
-To learn more, take a look at the following resources:
+## Install (unpacked, for development)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+1. `chrome://extensions` → enable **Developer mode**.
+2. **Load unpacked** → select the `epic-steam-extension` folder.
+3. Visit any Epic Games Store product page (`/p/...`).
+
+## Limitations
+
+- Matching is name-based; a different edition or similarly-named title can
+  occasionally match the wrong Steam app (the matched title is shown so you
+  can verify).
+- Steam's endpoints are unofficial/undocumented and may change or rate-limit.
+- Not affiliated with, endorsed by, or associated with Valve or Epic Games.
+
+## Permissions
+
+| Permission | Why |
+|---|---|
+| `storage` | Remembers your selected price region between visits. No personal data stored. |
+| `host_permissions: store.epicgames.com` | Read the game title, inject the panel. |
+| `host_permissions: store.steampowered.com` | Fetch public review/price data. |
+
+No remote code execution, no data collection, no third-party transmission.
+
+![screenshot]([https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png](https://github.com/NachoKai/epic-store-extension/blob/main/public/Captura%20de%20pantalla%202026-07-07%20230206.png?raw=true) "Screenshot")
