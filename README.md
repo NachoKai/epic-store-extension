@@ -21,12 +21,6 @@ with:
 
 ## Repo layout
 
-```
-epic-steam-extension/   the actual Chrome extension (MV3) — start here
-app/, components/, lib/ Next.js scaffold bootstrapped via v0.app (currently a
-                         placeholder, not yet wired to the extension)
-```
-
 The extension is self-contained under `epic-steam-extension/` — see
 [`epic-steam-extension/README.md`](epic-steam-extension/README.md) for how it
 works internally, and
@@ -68,4 +62,4 @@ for the Chrome Web Store listing copy.
 
 No remote code execution, no data collection, no third-party transmission.
 
-![screenshot]([https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png](https://github.com/NachoKai/epic-store-extension/blob/main/public/Captura%20de%20pantalla%202026-07-07%20230206.png?raw=true) "Screenshot")
+![screenshot](https://github.com/NachoKai/epic-store-extension/blob/main/public/Captura%20de%20pantalla%202026-07-07%20230206.png)
